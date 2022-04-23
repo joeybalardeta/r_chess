@@ -5,7 +5,7 @@
 #include "UI.h"
 #include "Rules.h"
 #include "Move.h"
-
+#include "Log.h"
 
 Game *CreateGame(){
 	Game *game = malloc(sizeof(Game));
@@ -95,6 +95,7 @@ Game *CloneGame(Game *game){
 
 void GameLoop(int option){
 	Game *game = CreateGame();
+	CreateLog();
 	if (option == 1){
 		int userSelection = 0;
 		
@@ -138,6 +139,11 @@ void GameLoop(int option){
 			EndGame(game);	
 		}
 		else{
+			PrintBoardR(game);
+            MOVE *AImove = GetAIMove(game);
+            Move(game, AImove);
+            printf("\n\nComputer moved %c%d to %c%d!\n\n\n", 'a' + AImove->r1, AImove->f1 + 1, 'a' + AImove->r2, AImove->f2 + 1);
+            DeleteMove(AImove);
 			game->whoTurn = BLACK;
 			while (!isCheckmate(game)){
 				if (game->whoTurn == BLACK){

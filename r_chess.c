@@ -10,12 +10,12 @@
 #include "ChessPiece.h" // responsible for the chess piece structs and rules
 #include "MoveList.h"
 #include "AI.h"
+#include "Log.h"
 
 // function declarations
 void PrintMenu();
 void ProcessInput();
 void Uninstall();
-
 
 
 int main(){
@@ -35,7 +35,7 @@ int main(){
 
     int userSelection = 0;
 
-    while (userSelection != 4 && userSelection != 3){
+    while (userSelection != 4 && userSelection != 5){
         PrintMenu();
         scanf("%d", &userSelection);
         ProcessInput(userSelection);
@@ -50,10 +50,11 @@ void PrintMenu(){
     printf("Select an option:\n\n");
     printf("1 - Player Versus Computer\n");
     printf("2 - Computer Versus Computer\n");
-    printf("3 - Uninstall\n");
-    printf("4 - Exit\n\n");
+    printf("3 - Show Log of Previous Game\n");
+    printf("4 - Uninstall\n");
+    printf("5 - Exit\n\n");
 
-    printf("Enter choice here (1-4): ");
+    printf("Enter choice here (1-5): ");
 }
 
 
@@ -67,15 +68,19 @@ void ProcessInput(int option){
         case 2:
             GameLoop(option);
             break;
-
-
+        
 
         case 3:
-            Uninstall();
+            OpenLog();
             break;
 
 
         case 4:
+            Uninstall();
+            break;
+
+
+        case 5:
             break;
 
 
@@ -93,3 +98,4 @@ void Uninstall(){
 	system("make clean");
     printf("Program uninstalled.\n");
 }
+

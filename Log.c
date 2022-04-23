@@ -7,6 +7,14 @@
 #include "ChessPiece.h"
 #include "Game.h"
 
+void CreateLog(){
+    FILE *f;
+    f = fopen("log.txt", "w");
+    fprintf(f, "PRESS Q TO EXIT\n\n");
+    fclose(f);	
+
+}
+
 void PlayerLog(Game *game, int Rank1, int File1, int Rank2, int File2){
     FILE *f;
     f = fopen("log.txt", "a");
@@ -76,4 +84,16 @@ void ComputerLog(Game *game, int Rank1, int File1, int Rank2, int File2){
     }
     fprintf(f,"Computer moved %s %s from %c%d to %c%d.\n", color, name, Rank1 + 97, File1 + 1, Rank2 + 97, File2 + 1);
     fclose(f);
+}
+
+void OpenLog(){
+    FILE *f;
+    f = fopen("log.txt", "r");
+    if (f == NULL){
+        printf("Log file does not exist.\n\n");
+    }
+    else{
+        fclose(f);
+        system("less log.txt");
+    }
 }
