@@ -90,5 +90,5 @@ void ProcessInput(int option){
 
 
 void Uninstall(){
-    printf("Uninstalling r/chess!\n");
+    printf("In order to remove r/chess, please wait for the program to exit then type 'make clean'. The program will now exit.\n");
 }

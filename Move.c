@@ -6,7 +6,7 @@
 #include "Rules.h"
 #include "ChessPiece.h"
 #include "AI.h"
-
+#include "Log.h"
 
 MOVE *CreateMove(int r1, int f1, int r2, int f2){
 	MOVE *move = malloc(sizeof(MOVE));
@@ -87,6 +87,7 @@ MOVE *GetUserMove(Game *game){
 		}
 		else {
 			isLegal = 1;
+			PlayerLog(game, m->r1, m->f1, m->r2, m->f2);
 		}
 
 	}
@@ -99,8 +100,9 @@ MOVE *GetUserMove(Game *game){
 MOVE *GetAIMove(Game *game){
 	MLIST *mList = GetAllLegalMoves(game);
 	mList = RankMoves(game, mList);
-
-	return GetBestMove(game, mList);
+	MOVE *m = GetBestMove(game, mList);
+	ComputerLog(game, m->r1, m->f1, m->r2, m->f2);
+	return m;
 }
 
 int charToInt(char c)
