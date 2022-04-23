@@ -131,7 +131,7 @@ void GameLoop(int option){
 					checkPromotions(game);
 					MOVE *AImove = GetAIMove(game);
 					Move(game, AImove);
-					printf("\n\nComputer moved %c%d to %c%d!\n\n\n", 'a' + AImove->r1, AImove->f1 + 1, 'a' + AImove->r2, AImove->f2 + 1);
+					printf("\n\nComputer moved %c%d to %c%d!\n\n", 'a' + AImove->r1, AImove->f1 + 1, 'a' + AImove->r2, AImove->f2 + 1);
 					DeleteMove(AImove);
 					game->whoTurn = WHITE;
 				}
@@ -142,12 +142,14 @@ void GameLoop(int option){
 			PrintBoardR(game);
             MOVE *AImove = GetAIMove(game);
             Move(game, AImove);
-            printf("\n\nComputer moved %c%d to %c%d!\n\n\n", 'a' + AImove->r1, AImove->f1 + 1, 'a' + AImove->r2, AImove->f2 + 1);
+            printf("\n\nComputer moved %c%d to %c%d!\n\n", 'a' + AImove->r1, AImove->f1 + 1, 'a' + AImove->r2, AImove->f2 + 1);
             DeleteMove(AImove);
 			game->whoTurn = BLACK;
 			while (!isCheckmate(game)){
 				if (game->whoTurn == BLACK){
+					printf("\n");
 					PrintBoardR(game);
+					printf("\n");
 					checkPromotions(game);
 					MOVE *pmove = GetUserMove(game);
 					Move(game, pmove);
@@ -166,6 +168,35 @@ void GameLoop(int option){
 			}
 			EndGame(game);	
 		}
+	}
+	else if (option == 2){
+		game->PLAYERW = HUMAN;
+                game->PLAYERB = HUMAN;
+		while (!isCheckmate(game)){
+	                if (game->whoTurn == WHITE){
+				printf("\n");
+                        	PrintBoard(game);
+				printf("\n");
+                               	checkPromotions(game);
+                                MOVE *pmove = GetUserMove(game);
+                                Move(game, pmove);
+                                DeleteMove(pmove);
+                                game->whoTurn = BLACK;
+                        }
+                        else {
+				printf("\n");
+                                PrintBoardR(game);
+				printf("\n");
+                                checkPromotions(game);
+                                MOVE *pmove = GetUserMove(game);
+                                Move(game, pmove);
+                                DeleteMove(pmove);
+                                game->whoTurn = WHITE;
+                        }
+		}
+		EndGame(game);
+		
+
 	}
 	else {
 		game->PLAYERW = COMPUTER;

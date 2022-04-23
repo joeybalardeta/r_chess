@@ -35,7 +35,7 @@ int main(){
 
     int userSelection = 0;
 
-    while (userSelection != 4 && userSelection != 5){
+    while (userSelection != 6 && userSelection != 5){
         PrintMenu();
         scanf("%d", &userSelection);
         ProcessInput(userSelection);
@@ -49,12 +49,13 @@ int main(){
 void PrintMenu(){
     printf("Select an option:\n\n");
     printf("1 - Player Versus Computer\n");
-    printf("2 - Computer Versus Computer\n");
-    printf("3 - Show Log of Previous Game\n");
-    printf("4 - Uninstall\n");
-    printf("5 - Exit\n\n");
+    printf("2 - Player Versus Player\n");
+    printf("3 - Computer Versus Computer\n");
+    printf("4 - Show Log of Previous Game\n");
+    printf("5 - Uninstall\n");
+    printf("6 - Exit\n\n");
 
-    printf("Enter choice here (1-5): ");
+    printf("Enter choice here (1-6): ");
 }
 
 
@@ -68,19 +69,24 @@ void ProcessInput(int option){
         case 2:
             GameLoop(option);
             break;
-        
+
 
         case 3:
+            GameLoop(option);
+            break;
+               
+
+        case 4:
             OpenLog();
             break;
 
 
-        case 4:
+        case 5:
             Uninstall();
             break;
 
 
-        case 5:
+        case 6:
             break;
 
 
