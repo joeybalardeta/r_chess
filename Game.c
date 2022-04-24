@@ -117,7 +117,7 @@ void GameLoop(int option){
 		}
 		
 		if (game->PLAYERW == HUMAN){
-			while (!isCheckmate(game)){
+			while (!isCheckmate(game) && !isStalemate(game)){
 				if (game->whoTurn == WHITE){
 					PrintBoard(game);
 					checkPromotions(game);
@@ -145,7 +145,7 @@ void GameLoop(int option){
             printf("\n\nComputer moved %c%d to %c%d!\n\n", 'a' + AImove->r1, AImove->f1 + 1, 'a' + AImove->r2, AImove->f2 + 1);
             DeleteMove(AImove);
 			game->whoTurn = BLACK;
-			while (!isCheckmate(game)){
+			while (!isCheckmate(game) && !isStalemate(game)){
 				if (game->whoTurn == BLACK){
 					printf("\n");
 					PrintBoardR(game);
@@ -171,28 +171,28 @@ void GameLoop(int option){
 	}
 	else if (option == 2){
 		game->PLAYERW = HUMAN;
-                game->PLAYERB = HUMAN;
-		while (!isCheckmate(game)){
-	                if (game->whoTurn == WHITE){
+        game->PLAYERB = HUMAN;
+		while (!isCheckmate(game) && !isStalemate(game)){
+	    	if (game->whoTurn == WHITE){
 				printf("\n");
-                        	PrintBoard(game);
+                PrintBoard(game);
 				printf("\n");
-                               	checkPromotions(game);
-                                MOVE *pmove = GetUserMove(game);
-                                Move(game, pmove);
-                                DeleteMove(pmove);
-                                game->whoTurn = BLACK;
-                        }
-                        else {
+               	checkPromotions(game);
+                MOVE *pmove = GetUserMove(game);
+                Move(game, pmove);
+                DeleteMove(pmove);
+                game->whoTurn = BLACK;
+            }
+            else {
 				printf("\n");
-                                PrintBoardR(game);
+                PrintBoardR(game);
 				printf("\n");
-                                checkPromotions(game);
-                                MOVE *pmove = GetUserMove(game);
-                                Move(game, pmove);
-                                DeleteMove(pmove);
-                                game->whoTurn = WHITE;
-                        }
+                checkPromotions(game);
+                MOVE *pmove = GetUserMove(game);
+                Move(game, pmove);
+                DeleteMove(pmove);
+                game->whoTurn = WHITE;
+	        }
 		}
 		EndGame(game);
 		
@@ -203,7 +203,7 @@ void GameLoop(int option){
 		game->PLAYERB = COMPUTER;
 
 		
-		while (!isCheckmate(game)){
+		while (!isCheckmate(game) && !isStalemate(game)){
 			if (game->whoTurn == WHITE){
 				PrintBoard(game);
 				checkPromotions(game);
@@ -230,5 +230,17 @@ void GameLoop(int option){
 
 // determine the winner and clean up memory
 void EndGame(Game *game){
+	if (isCheckmate(game)){
+		if (game->whoTurn == WHITE){
+			printf("Black wins!\n\n");
+		}
+		else {
+			printf("White wins!\n\n");
+		}
+	}
+	else if (isStalemate(game)){
+		printf("It's a draw!\n\n");
+	}
+
 	DeleteGame(game);
 }

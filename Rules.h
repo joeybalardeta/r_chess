@@ -7,6 +7,8 @@
 
 int isCheckmate(Game *game);
 
+int isStalemate(Game *game);
+
 int isLegalMove(Game *game, MOVE *move);
 
 int isValidPieceMove(Game *game, MOVE *move);

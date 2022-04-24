@@ -102,6 +102,6 @@ void ProcessInput(int option){
 
 void Uninstall(){
 	system("make clean");
-    printf("Program uninstalled.\n");
+    printf("r/chess has been successfully uninstalled.\n");
 }
 
