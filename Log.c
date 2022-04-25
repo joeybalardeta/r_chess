@@ -86,6 +86,18 @@ void ComputerLog(Game *game, int Rank1, int File1, int Rank2, int File2){
     fclose(f);
 }
 
+void LogWin(Game *game){
+    FILE *f;
+    f = fopen("log.txt", "a");
+    if (game->whoTurn == WHITE){
+        fprintf(f, "Black Wins.\n");
+    }
+    else {
+        fprintf(f, "White Wins.\n");
+    }
+    fclose(f);
+}
+
 void OpenLog(){
     FILE *f;
     f = fopen("log.txt", "r");

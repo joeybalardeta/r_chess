@@ -412,28 +412,28 @@ int isObstructed(Game *game, MOVE *move){
 		}	
 	}
 	else if (piece->p_type == QUEEN){
-		if (r1 < r2){
+		if (r1 < r2 && f1 == f2){
 			for (int i = r1 + 1; i < r2; i++){
 				if (game->board[i][f1] != NULL){
 					return 1;
 				}
 			}
 		}
-		else if (r1 > r2){
+		else if (r1 > r2 && f1 == f2){
 			for (int i = r2 + 1; i < r1; i++){
 				if (game->board[i][f1] != NULL){
 					return 1;
 				}
 			}	
 		}
-		else if (f1 < f2){
+		else if (f1 < f2 && r1 == r2){
 			for (int i = f1 + 1; i < f2; i++){
 				if (game->board[r1][i] != NULL){
 					return 1;
 				}
 			}			
 		}
-		else if (f1 > f2){
+		else if (f1 > f2 && r1 == r2){
 			for (int i = f2 + 1; i < f1; i++){
 				if (game->board[r1][i] != NULL){
 					return 1;

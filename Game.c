@@ -237,6 +237,7 @@ void EndGame(Game *game){
 		else {
 			printf("White wins!\n\n");
 		}
+		LogWin(game);
 	}
 	else if (isStalemate(game)){
 		printf("It's a draw!\n\n");
