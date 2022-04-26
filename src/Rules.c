@@ -129,6 +129,9 @@ int isValidPieceMove(Game *game, MOVE *move){
 				
 			// move forward two squares on the first move case
 			if ((f2 - f1 == 2) && (r2 - r1 == 0) && game->board[move->r2][move->f2] == NULL && piece->numberOfMoves == 0){
+				if (game->board[r1][f1 + 1] != NULL){
+					return 0;
+				}
 				return 1;
 			}
 
@@ -162,6 +165,9 @@ int isValidPieceMove(Game *game, MOVE *move){
 
 			// move forward two squares on the first move case
 			if ((f2 - f1 == -2) && (r2 - r1 == 0) && game->board[move->r2][move->f2] == NULL && piece->numberOfMoves == 0){
+				if (game->board[r1][f1 - 1] != NULL){
+					return 0;
+				}
 				return 1;
 			}
 
@@ -254,6 +260,12 @@ int isValidPieceMove(Game *game, MOVE *move){
 				MOVE *temp_move = CreateMove(r1, f1, r1 + 1, f2);
 				Move(clone, temp_move);
 				DeleteMove(temp_move);
+
+			
+				if (game->board[5][f1] != NULL || game->board[6][f1] != NULL){
+					return 0;
+				}
+
 				if (!isInCheck(clone)){
 					DeleteGame(clone);
 					MOVE *temp_move = CreateMove(7, f1, r1 + 1, f2);
@@ -270,6 +282,11 @@ int isValidPieceMove(Game *game, MOVE *move){
 				MOVE *move = CreateMove(r1, f1, r1 - 1, f2);
 				Move(clone, move);
 				DeleteMove(move);
+
+				if (game->board[1][f1] != NULL || game->board[2][f1] != NULL || game->board[3][f1] != NULL){
+					return 0;
+				}
+
 				if (!isInCheck(clone)){
 					DeleteGame(clone);
 					MOVE *temp_move = CreateMove(0, f1, r1 - 1, f2);

@@ -12,7 +12,7 @@
 // AI ENGING VARIABLES
 #define PIECE_POINTS_MULTIPLIER 4
 #define KING_DISTANCE_MULTIPLIER 8
-#define DEFAULT_AGGRESSION_MULTIPLIER 1
+#define DEFAULT_AGGRESSION_MULTIPLIER 2
 
 
 
@@ -163,23 +163,23 @@ MLIST *RankMoves(Game *game, MLIST *mList){
 
 			switch (piece->p_type){
 				case PAWN:
-					temp_points += PIECE_POINTS_MULTIPLIER * 1 * AGGRESSION_MULTIPLIER;
+					temp_points += PIECE_POINTS_MULTIPLIER * 1 * AGGRESSION_MULTIPLIER * 2;
 					break;
 
 				case ROOK:
-					temp_points += PIECE_POINTS_MULTIPLIER * 5 * AGGRESSION_MULTIPLIER;
+					temp_points += PIECE_POINTS_MULTIPLIER * 5 * AGGRESSION_MULTIPLIER * 2;
 					break;
 
 				case KNIGHT:
-					temp_points += PIECE_POINTS_MULTIPLIER * 3 * AGGRESSION_MULTIPLIER;
+					temp_points += PIECE_POINTS_MULTIPLIER * 3 * AGGRESSION_MULTIPLIER * 2;
 					break;
 
 				case BISHOP:
-					temp_points += PIECE_POINTS_MULTIPLIER * 3 * AGGRESSION_MULTIPLIER;
+					temp_points += PIECE_POINTS_MULTIPLIER * 3 * AGGRESSION_MULTIPLIER * 2;
 					break;
 
 				case QUEEN:
-					temp_points += PIECE_POINTS_MULTIPLIER * 9 * AGGRESSION_MULTIPLIER;
+					temp_points += PIECE_POINTS_MULTIPLIER * 9 * AGGRESSION_MULTIPLIER * 2;
 					break;
 
 				default:
@@ -198,31 +198,31 @@ MLIST *RankMoves(Game *game, MLIST *mList){
 					break;
 
 				case ROOK:
-					temp_points -= 5;
+					temp_points -= 3;
 					break;
 
 				case KNIGHT:
-					temp_points -= 3;
+					temp_points -= 2;
 					break;
 
 				case BISHOP:
-					temp_points -= 3;
+					temp_points -= 2;
 					break;
 
 				case QUEEN:
-					temp_points -= 9;
+					temp_points -= 15 / AGGRESSION_MULTIPLIER;
 					break;
 
 				case KING:
-					temp_points -= 15 / AGGRESSION_MULTIPLIER;
+					temp_points -= 35 / (AGGRESSION_MULTIPLIER);
 					break;
 
 				default:
 					break;
 			}
 
-			if (piece->numberOfMoves == 0){
-				temp_points += 3;
+			if (piece->numberOfMoves == 0 && piece->p_type == PAWN){
+				temp_points += 2;
 			}
 		}
 
