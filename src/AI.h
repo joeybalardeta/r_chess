@@ -10,6 +10,8 @@ MLIST *GetAllLegalMoves(Game *game);
 
 MLIST *RankMoves(Game *game, MLIST *mList);
 
+MLIST *RankMovesFuture(Game *game, MLIST *mList);
+
 MOVE *GetBestMove(Game *game, MLIST *mList);
 
 #endif

@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "Move.h"
 #include "MoveList.h"
+#include "Move.h"
 
 
 MLIST *CreateMoveList(){
@@ -24,6 +24,24 @@ void DeleteMoveList(MLIST *mList){
 	mList->First = NULL;
 
 	free(mList);
+}
+
+MLIST *CloneMoveList(MLIST *mList){
+	MLIST *clone = CreateMoveList();
+
+	
+	MENTRY *entry = mList->First;
+
+	for (int i = 0; i < mList->Length; i++){
+		MOVE *temp = CreateMove(entry->Move->r1, entry->Move->f1, entry->Move->r2, entry->Move->f2);
+		
+		AppendMoveEntry(clone, temp);
+
+		entry = entry->Next;	
+	}
+
+
+	return clone;
 }
 
 void AppendMoveEntry(MLIST *mList, MOVE *m){

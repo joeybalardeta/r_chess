@@ -6,10 +6,12 @@
 #include "Rules.h"
 #include "Move.h"
 #include "Log.h"
+#include "MoveList.h"
 
 Game *CreateGame(){
 	Game *game = malloc(sizeof(Game));
 	assert(game);
+
 	
 	game->whoTurn = WHITE;
 
@@ -67,6 +69,7 @@ void DeleteGame(Game *game){
 			DeletePiece(game->board[i][j]);
 		}
 	}
+
 	
 	free(game);
 }
@@ -84,6 +87,7 @@ Game *CloneGame(Game *game){
 			}
 		}
 	}
+
 
 	clone->PLAYERW = game->PLAYERW;
 	clone->PLAYERB = game->PLAYERB;
@@ -120,19 +124,19 @@ void GameLoop(int option){
 			while (!isCheckmate(game) && !isStalemate(game)){
 				if (game->whoTurn == WHITE){
 					PrintBoard(game);
-					checkPromotions(game);
 					MOVE *pmove = GetUserMove(game);
 					Move(game, pmove);
 					DeleteMove(pmove);				
+					checkPromotions(game);
 					game->whoTurn = BLACK;
 				}
 				else {
 					PrintBoard(game);
-					checkPromotions(game);
 					MOVE *AImove = GetAIMove(game);
 					Move(game, AImove);
 					printf("\n\nComputer moved %c%d to %c%d!\n\n", 'a' + AImove->r1, AImove->f1 + 1, 'a' + AImove->r2, AImove->f2 + 1);
 					DeleteMove(AImove);
+					checkPromotions(game);
 					game->whoTurn = WHITE;
 				}
 			}
@@ -150,19 +154,19 @@ void GameLoop(int option){
 					printf("\n");
 					PrintBoardR(game);
 					printf("\n");
-					checkPromotions(game);
 					MOVE *pmove = GetUserMove(game);
 					Move(game, pmove);
 					DeleteMove(pmove);				
+					checkPromotions(game);
 					game->whoTurn = WHITE;
 				}
 				else {
 					PrintBoardR(game);
-					checkPromotions(game);
 					MOVE *AImove = GetAIMove(game);
 					Move(game, AImove);
 					printf("\n\nComputer moved %c%d to %c%d!\n\n\n", 'a' + AImove->r1, AImove->f1 + 1, 'a' + AImove->r2, AImove->f2 + 1);
 					DeleteMove(AImove);
+					checkPromotions(game);
 					game->whoTurn = BLACK;
 				}
 			}
@@ -177,20 +181,20 @@ void GameLoop(int option){
 				printf("\n");
                 PrintBoard(game);
 				printf("\n");
-               	checkPromotions(game);
                 MOVE *pmove = GetUserMove(game);
                 Move(game, pmove);
                 DeleteMove(pmove);
+               	checkPromotions(game);
                 game->whoTurn = BLACK;
             }
             else {
 				printf("\n");
                 PrintBoardR(game);
 				printf("\n");
-                checkPromotions(game);
                 MOVE *pmove = GetUserMove(game);
                 Move(game, pmove);
                 DeleteMove(pmove);
+               	checkPromotions(game);
                 game->whoTurn = WHITE;
 	        }
 		}
@@ -206,20 +210,20 @@ void GameLoop(int option){
 		while (!isCheckmate(game) && !isStalemate(game)){
 			if (game->whoTurn == WHITE){
 				PrintBoard(game);
-				checkPromotions(game);
 				MOVE *AImove = GetAIMove(game);
 				Move(game, AImove);
 				printf("\n\nComputer moved %c%d to %c%d!\n\n\n", 'a' + AImove->r1, AImove->f1 + 1, 'a' + AImove->r2, AImove->f2 + 1);
 				DeleteMove(AImove);
+				checkPromotions(game);
 				game->whoTurn = BLACK;
 			}
 			else {
 				PrintBoard(game);
-				checkPromotions(game);
 				MOVE *AImove = GetAIMove(game);
 				Move(game, AImove);
 				printf("\n\nComputer moved %c%d to %c%d!\n\n\n", 'a' + AImove->r1, AImove->f1 + 1, 'a' + AImove->r2, AImove->f2 + 1);
 				DeleteMove(AImove);
+				checkPromotions(game);
 				game->whoTurn = WHITE;
 			}
 		}
@@ -242,6 +246,4 @@ void EndGame(Game *game){
 	else if (isStalemate(game)){
 		printf("It's a draw!\n\n");
 	}
-
-	DeleteGame(game);
 }

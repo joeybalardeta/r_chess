@@ -31,6 +31,8 @@ MLIST *CreateMoveList();
 
 void DeleteMoveList(MLIST *mList);
 
+MLIST *CloneMoveList(MLIST *mList);
+
 void AppendMoveEntry(MLIST *mList, MOVE *m);
 
 void DeleteMoveEntry(MLIST *mList, int index);

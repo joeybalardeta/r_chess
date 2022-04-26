@@ -25,5 +25,4 @@ void GameLoop(int option);
 void EndGame(Game *game);
 
 
-
 #endif

@@ -530,6 +530,38 @@ void checkPromotions(Game *game){
 		if (who == WHITE && game->PLAYERW == HUMAN){
 			if (game->board[i][7] != NULL && game->board[i][7]->p_type == PAWN){
 				printf("A pawn on %c8 is ready for promotion!\n", 'a' + i);
+				printf("What would you like to promote it to?\n");
+				printf("N - Knight\n");
+				printf("R - Rook\n");
+				printf("B - Bishop\n");
+				printf("Q - Queen\n");
+				printf("Enter choice here: ");
+				char input = ' ';
+				scanf(" %c", &input);
+				while (input != 'N' && input != 'R' && input != 'B' && input != 'Q'){
+					printf("Choice invalid!\n");
+					scanf("%c", &input);
+				}
+				switch(input){
+					case 'N':
+						PromotePiece(game->board[i][7], KNIGHT);
+						break;
+
+					case 'R':
+						PromotePiece(game->board[i][7], ROOK);
+						break;
+
+					case 'B':
+						PromotePiece(game->board[i][7], BISHOP);
+						break;
+
+					case 'Q':
+						PromotePiece(game->board[i][7], QUEEN);
+						break;
+
+					default:
+						break;
+				}
 			}
 		}
 		else if (who == BLACK && game->PLAYERB == HUMAN){

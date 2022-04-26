@@ -10,9 +10,9 @@
 
 
 // AI ENGING VARIABLES
-#define PIECE_POINTS_MULTIPLIER 2
-#define KING_DISTANCE_MULTIPLIER 4
-
+#define PIECE_POINTS_MULTIPLIER 4
+#define KING_DISTANCE_MULTIPLIER 8
+#define DEFAULT_AGGRESSION_MULTIPLIER 1
 
 
 
@@ -75,6 +75,75 @@ MLIST *RankMoves(Game *game, MLIST *mList){
 		}
 	}
 
+	int AGGRESSION_MULTIPLIER = DEFAULT_AGGRESSION_MULTIPLIER;
+	int aggro_points = 0;
+	for (int i = 0; i < 8; i++){
+		for (int j = 0; j < 8; j++){
+			if (game->board[i][j] != NULL && game->board[i][j]->color == game->whoTurn){
+				ChessPiece *piece = game->board[i][j];
+
+				switch (piece->p_type){
+					case PAWN:
+						aggro_points += PIECE_POINTS_MULTIPLIER * 1;
+						break;
+
+					case ROOK:
+						aggro_points += PIECE_POINTS_MULTIPLIER * 5;
+						break;
+
+					case KNIGHT:
+						aggro_points += PIECE_POINTS_MULTIPLIER * 3;
+						break;
+
+					case BISHOP:
+						aggro_points += PIECE_POINTS_MULTIPLIER * 3;
+						break;
+
+					case QUEEN:
+						aggro_points += PIECE_POINTS_MULTIPLIER * 9;
+						break;
+
+					default:
+						break;
+				}
+			}
+			else if (game->board[i][j] != NULL && game->board[i][j]->color != game->whoTurn){
+				ChessPiece *piece = game->board[i][j];
+
+				switch (piece->p_type){
+					case PAWN:
+						aggro_points -= PIECE_POINTS_MULTIPLIER * 1;
+						break;
+
+					case ROOK:
+						aggro_points -= PIECE_POINTS_MULTIPLIER * 5;
+						break;
+
+					case KNIGHT:
+						aggro_points -= PIECE_POINTS_MULTIPLIER * 3;
+						break;
+
+					case BISHOP:
+						aggro_points -= PIECE_POINTS_MULTIPLIER * 3;
+						break;
+
+					case QUEEN:
+						aggro_points -= PIECE_POINTS_MULTIPLIER * 9;
+						break;
+
+					default:
+						break;
+				}
+			}
+		}
+	}
+
+	AGGRESSION_MULTIPLIER += (aggro_points / 2);
+
+	if (AGGRESSION_MULTIPLIER == 0){
+		AGGRESSION_MULTIPLIER = 1;
+	}
+
 	MENTRY *mEntry = mList->First;
 
 	for (int i = 0; i < mList->Length; i++){
@@ -83,31 +152,34 @@ MLIST *RankMoves(Game *game, MLIST *mList){
 		int distFromKingR = abs(move->r2 - rK);
 		int distFromKingF = abs(move->f2 - fK);
 
-		int temp_points = -(distFromKingR + distFromKingF) / KING_DISTANCE_MULTIPLIER;
+		int temp_points = (-(distFromKingR + distFromKingF) / KING_DISTANCE_MULTIPLIER) * AGGRESSION_MULTIPLIER;
 		
+		if (distFromKingR <= 1 && distFromKingF <= 1){
+			temp_points -= 100;
+		}
 
 		if (game->board[move->r2][move->f2] != NULL){
 			ChessPiece *piece = game->board[move->r2][move->f2];
 
 			switch (piece->p_type){
 				case PAWN:
-					temp_points += PIECE_POINTS_MULTIPLIER * 1;
+					temp_points += PIECE_POINTS_MULTIPLIER * 1 * AGGRESSION_MULTIPLIER;
 					break;
 
 				case ROOK:
-					temp_points += PIECE_POINTS_MULTIPLIER * 5;
+					temp_points += PIECE_POINTS_MULTIPLIER * 5 * AGGRESSION_MULTIPLIER;
 					break;
 
 				case KNIGHT:
-					temp_points += PIECE_POINTS_MULTIPLIER * 3;
+					temp_points += PIECE_POINTS_MULTIPLIER * 3 * AGGRESSION_MULTIPLIER;
 					break;
 
 				case BISHOP:
-					temp_points += PIECE_POINTS_MULTIPLIER * 3;
+					temp_points += PIECE_POINTS_MULTIPLIER * 3 * AGGRESSION_MULTIPLIER;
 					break;
 
 				case QUEEN:
-					temp_points += PIECE_POINTS_MULTIPLIER * 9;
+					temp_points += PIECE_POINTS_MULTIPLIER * 9 * AGGRESSION_MULTIPLIER;
 					break;
 
 				default:
@@ -142,11 +214,15 @@ MLIST *RankMoves(Game *game, MLIST *mList){
 					break;
 
 				case KING:
-					temp_points -= 15;
+					temp_points -= 15 / AGGRESSION_MULTIPLIER;
 					break;
 
 				default:
 					break;
+			}
+
+			if (piece->numberOfMoves == 0){
+				temp_points += 3;
 			}
 		}
 
@@ -155,6 +231,48 @@ MLIST *RankMoves(Game *game, MLIST *mList){
 		mEntry = mEntry->Next;
 	}
 
+
+	return mList;
+}
+
+
+MLIST *RankMovesFuture(Game *game, MLIST *mList){
+	MENTRY *entry = mList->First;
+
+	for (int i = 0; i < mList->Length; i++){
+		Game *clone = CloneGame(game);
+		clone->PLAYERW = COMPUTER;
+		clone->PLAYERB = COMPUTER;
+
+		if (!isLegalMove(clone, entry->Move)){
+			DeleteGame(clone);
+			entry->points -= 10000;
+			entry = entry->Next;
+			continue;
+		}
+
+		Move(clone, entry->Move);
+		checkPromotions(clone);
+		clone->whoTurn = (clone->whoTurn + 1) % 2;
+		MLIST *futureMoves = RankMoves(clone, GetAllLegalMoves(clone));
+
+		MENTRY *entryFuture = futureMoves->First;
+
+		int total = 0;
+
+		for (int j = 0; j < futureMoves->Length; j++){
+			total += entryFuture->points;
+			entryFuture = entryFuture->Next;
+		}
+
+		entry->points -= (total / futureMoves->Length);
+
+		entry = entry->Next;
+
+		DeleteMoveList(futureMoves);
+
+		DeleteGame(clone);
+	}
 
 	return mList;
 }

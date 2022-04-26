@@ -33,6 +33,8 @@ void Move(Game *game, MOVE *move){
     currentFile = move->f1;
     newRank = move->r2;
     newFile = move->f2;
+
+	// printf("%c%d to %c%d\n", 'a' + currentRank, 1 + currentFile, 'a' + newRank, 1 + newFile);
 	
 	if (currentRank == newRank && currentFile == newFile){
 		return;
@@ -100,7 +102,9 @@ MOVE *GetUserMove(Game *game){
 MOVE *GetAIMove(Game *game){
 	MLIST *mList = GetAllLegalMoves(game);
 	mList = RankMoves(game, mList);
+	//mList = RankMovesFuture(game, mList);
 	MOVE *m = GetBestMove(game, mList);
+	//printf("AI Move: %c%d to %c%d\n", 'a' + m->r1, 1 + m->f1, 'a' + m->r2, 1 + m->f2);
 	ComputerLog(game, m->r1, m->f1, m->r2, m->f2);
 	return m;
 }
