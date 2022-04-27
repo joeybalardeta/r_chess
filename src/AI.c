@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 
 #include "AI.h"
 #include "Game.h"
@@ -10,7 +11,7 @@
 
 
 // AI ENGING VARIABLES
-#define PIECE_POINTS_MULTIPLIER 4
+#define PIECE_POINTS_MULTIPLIER 6
 #define KING_DISTANCE_MULTIPLIER 8
 #define DEFAULT_AGGRESSION_MULTIPLIER 2
 
@@ -163,23 +164,23 @@ MLIST *RankMoves(Game *game, MLIST *mList){
 
 			switch (piece->p_type){
 				case PAWN:
-					temp_points += PIECE_POINTS_MULTIPLIER * 1 * AGGRESSION_MULTIPLIER * 2;
+					temp_points += PIECE_POINTS_MULTIPLIER * 1;
 					break;
 
 				case ROOK:
-					temp_points += PIECE_POINTS_MULTIPLIER * 5 * AGGRESSION_MULTIPLIER * 2;
+					temp_points += PIECE_POINTS_MULTIPLIER * 5;
 					break;
 
 				case KNIGHT:
-					temp_points += PIECE_POINTS_MULTIPLIER * 3 * AGGRESSION_MULTIPLIER * 2;
+					temp_points += PIECE_POINTS_MULTIPLIER * 3;
 					break;
 
 				case BISHOP:
-					temp_points += PIECE_POINTS_MULTIPLIER * 3 * AGGRESSION_MULTIPLIER * 2;
+					temp_points += PIECE_POINTS_MULTIPLIER * 3;
 					break;
 
 				case QUEEN:
-					temp_points += PIECE_POINTS_MULTIPLIER * 9 * AGGRESSION_MULTIPLIER * 2;
+					temp_points += PIECE_POINTS_MULTIPLIER * 9;
 					break;
 
 				default:
@@ -190,56 +191,63 @@ MLIST *RankMoves(Game *game, MLIST *mList){
 
 
 		if (game->board[move->r1][move->f1] != NULL){
-			ChessPiece *piece = game->board[move->r1][move->f1];
+			// ChessPiece *piece = game->board[move->r1][move->f1];
 
-			switch (piece->p_type){
-				case PAWN:
-					temp_points -= 1;
-					break;
-
-				case ROOK:
-					temp_points -= 3;
-					break;
-
-				case KNIGHT:
-					temp_points -= 2;
-					break;
-
-				case BISHOP:
-					temp_points -= 2;
-					break;
-
-				case QUEEN:
-					temp_points -= 15 / AGGRESSION_MULTIPLIER;
-					break;
-
-				case KING:
-					temp_points -= 35 / (AGGRESSION_MULTIPLIER);
-					break;
-
-				default:
-					break;
-			}
-
-			if (piece->numberOfMoves == 0 && piece->p_type == PAWN){
-				temp_points += 2;
-			}
 		}
 
 		mEntry->points = temp_points;
 
+		// printf("Points: %d\n", mEntry->points);
 		mEntry = mEntry->Next;
 	}
 
+	mList = CullMoves(game, mList);
 
 	return mList;
 }
 
 
-MLIST *RankMovesFuture(Game *game, MLIST *mList){
+MLIST *CullMoves(Game *game, MLIST* mList){
+	MLIST *mListClone = CloneMoveList(mList);
+
+	int length = mList->Length;
+
+	MENTRY *mEntry = mList->First;
+
+	int total = 0;
+
+	for (int i = 0; i < length; i++){
+		total += mEntry->points;
+
+		mEntry = mEntry->Next;
+	}
+
+	int average = total / mList->Length;
+
+	mEntry = mList->First;
+
+	for (int i = 0; i < length; i++){
+		if (mEntry->points < average){
+			AppendMoveEntry(mListClone, CloneMove(mEntry->Move));
+			mListClone->Last->points = mEntry->points;
+		}
+		mEntry = mEntry->Next;
+	}
+
+	DeleteMoveList(mList);
+
+	return mListClone;
+}
+
+
+MLIST *RankMovesFuture(Game *game, MLIST *mList, int depth){
+
+
 	MENTRY *entry = mList->First;
 
 	for (int i = 0; i < mList->Length; i++){
+		// printf("%c%d to %c%d\n", 'a' + entry->Move->r1, 1 + entry->Move->f1, 'a' + entry->Move->r2, 1 + entry->Move->f2);
+
 		Game *clone = CloneGame(game);
 		clone->PLAYERW = COMPUTER;
 		clone->PLAYERB = COMPUTER;
@@ -251,10 +259,19 @@ MLIST *RankMovesFuture(Game *game, MLIST *mList){
 			continue;
 		}
 
+
 		Move(clone, entry->Move);
 		checkPromotions(clone);
 		clone->whoTurn = (clone->whoTurn + 1) % 2;
+		if (isCheckmate(clone)){
+			DeleteGame(clone);
+			entry->points += 10000;
+			entry = entry->Next;
+
+			continue;
+		}
 		MLIST *futureMoves = RankMoves(clone, GetAllLegalMoves(clone));
+
 
 		MENTRY *entryFuture = futureMoves->First;
 
@@ -265,7 +282,11 @@ MLIST *RankMovesFuture(Game *game, MLIST *mList){
 			entryFuture = entryFuture->Next;
 		}
 
-		entry->points -= (total / futureMoves->Length);
+		entry->points -= 20 * (total / (futureMoves->Length == 0 ? 1 : futureMoves->Length));
+
+		if (depth > 0){
+			futureMoves = RankMovesFuture(clone, futureMoves, depth - 1);
+		}
 
 		entry = entry->Next;
 

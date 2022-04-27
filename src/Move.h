@@ -25,6 +25,9 @@ void DeleteMove(MOVE *move);
 // moves a piece on the board
 void Move(Game *game, MOVE *move);
 
+// clone a move
+MOVE *CloneMove(MOVE *move);
+
 // gets the move from the user, will check if the move is legal
 MOVE *GetUserMove(Game *game);
 

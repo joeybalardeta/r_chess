@@ -57,6 +57,11 @@ void Move(Game *game, MOVE *move){
 
 
 
+MOVE *CloneMove(MOVE *move){
+	return CreateMove(move->r1, move->f1, move->r2, move->f2 );
+}
+
+
 MOVE *GetUserMove(Game *game){
     char currentPos[2];
 	char newPos[2];
@@ -102,7 +107,8 @@ MOVE *GetUserMove(Game *game){
 MOVE *GetAIMove(Game *game){
 	MLIST *mList = GetAllLegalMoves(game);
 	mList = RankMoves(game, mList);
-	//mList = RankMovesFuture(game, mList);
+	mList = RankMovesFuture(game, mList, 1);
+
 	MOVE *m = GetBestMove(game, mList);
 	//printf("AI Move: %c%d to %c%d\n", 'a' + m->r1, 1 + m->f1, 'a' + m->r2, 1 + m->f2);
 	ComputerLog(game, m->r1, m->f1, m->r2, m->f2);
