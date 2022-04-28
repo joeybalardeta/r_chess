@@ -106,11 +106,24 @@ MOVE *GetUserMove(Game *game){
 
 MOVE *GetAIMove(Game *game){
 	MLIST *mList = GetAllLegalMoves(game);
-	mList = RankMoves(game, mList);
-	mList = RankMovesFuture(game, mList, 1);
+	mList = RankMovesFuture(game, game, mList, 2);
 
 	MOVE *m = GetBestMove(game, mList);
 	//printf("AI Move: %c%d to %c%d\n", 'a' + m->r1, 1 + m->f1, 'a' + m->r2, 1 + m->f2);
+
+	int movePoints = 0;
+	for (int i = 0; i < 8; i++){
+		for (int j = 0; j < 8; j++){
+			if (game->board[i][j] != NULL){
+				movePoints += game->board[i][j]->numberOfMoves;
+			}
+		}
+	}
+	if (movePoints == 1){
+		DeleteMove(m);
+		m = CreateMove(4, 6, 4, 4);
+	}
+
 	ComputerLog(game, m->r1, m->f1, m->r2, m->f2);
 	return m;
 }

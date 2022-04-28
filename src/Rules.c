@@ -8,7 +8,6 @@ int isCheckmate(Game *game){
 		for (int i = 0; i < 8; i++){
 			for (int j = 0; j < 8; j++){
 				ChessPiece *piece = game->board[i][j];
-
 				if (piece != NULL && piece->color == game->whoTurn){
 					for (int r = 0; r < 8; r++){
 						for (int f = 0; f < 8; f++){
@@ -17,12 +16,14 @@ int isCheckmate(Game *game){
 								DeleteMove(move);
 								return 0;
 							}
+							else {
+								DeleteMove(move);
+							}
 						}
 					}
 				}
 			}
 		}
-
 		return 1;
 	}
 
@@ -246,7 +247,7 @@ int isValidPieceMove(Game *game, MOVE *move){
 				}
 			}
 
-			if (abs(r2 - rK) <= 2 && abs(f2 - fK) <= 2){
+			if (abs(r2 - rK) <= 1 && abs(f2 - fK) <= 1){
 				return 0;
 			}
 
@@ -584,6 +585,38 @@ void checkPromotions(Game *game){
 		else if (who == BLACK && game->PLAYERB == HUMAN){
 			if (game->board[i][0] != NULL && game->board[i][0]->p_type == PAWN){
 				printf("A pawn on %c1 is ready for promotion!\n", 'a' + i);
+				printf("What would you like to promote it to?\n");
+				printf("N - Knight\n");
+				printf("R - Rook\n");
+				printf("B - Bishop\n");
+				printf("Q - Queen\n");
+				printf("Enter choice here: ");
+				char input = ' ';
+				scanf(" %c", &input);
+				while (input != 'N' && input != 'R' && input != 'B' && input != 'Q'){
+					printf("Choice invalid!\n");
+					scanf("%c", &input);
+				}
+				switch(input){
+					case 'N':
+						PromotePiece(game->board[i][0], KNIGHT);
+						break;
+
+					case 'R':
+						PromotePiece(game->board[i][0], ROOK);
+						break;
+
+					case 'B':
+						PromotePiece(game->board[i][0], BISHOP);
+						break;
+
+					case 'Q':
+						PromotePiece(game->board[i][0], QUEEN);
+						break;
+
+					default:
+						break;
+				}
 			}
 			
 		}

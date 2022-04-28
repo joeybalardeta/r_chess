@@ -234,6 +234,12 @@ void GameLoop(int option){
 
 // determine the winner and clean up memory
 void EndGame(Game *game){
+	if (game->PLAYERB == HUMAN){
+		PrintBoardR(game);
+	}
+	else {
+		PrintBoard(game);
+	}
 	if (isCheckmate(game)){
 		if (game->whoTurn == WHITE){
 			printf("Black wins!\n\n");

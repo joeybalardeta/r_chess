@@ -11,9 +11,9 @@
 
 
 // AI ENGING VARIABLES
-#define PIECE_POINTS_MULTIPLIER 6
-#define KING_DISTANCE_MULTIPLIER 8
-#define DEFAULT_AGGRESSION_MULTIPLIER 2
+#define PIECE_POINTS_MULTIPLIER 4
+#define KING_DISTANCE_MULTIPLIER 4
+#define DEFAULT_AGGRESSION_MULTIPLIER 1
 
 
 
@@ -43,6 +43,7 @@ MLIST *GetAllLegalMoves(Game *game){
 }
 
 MLIST *RankMoves(Game *game, MLIST *mList){
+
 	if (mList->Length == 0){
 		return NULL;
 	}
@@ -77,9 +78,14 @@ MLIST *RankMoves(Game *game, MLIST *mList){
 	}
 
 	int AGGRESSION_MULTIPLIER = DEFAULT_AGGRESSION_MULTIPLIER;
+
 	int aggro_points = 0;
+	int movePoints = 0;
 	for (int i = 0; i < 8; i++){
 		for (int j = 0; j < 8; j++){
+			if (game->board[i][j] != NULL){
+				movePoints += game->board[i][j]->numberOfMoves;
+			}
 			if (game->board[i][j] != NULL && game->board[i][j]->color == game->whoTurn){
 				ChessPiece *piece = game->board[i][j];
 
@@ -145,6 +151,7 @@ MLIST *RankMoves(Game *game, MLIST *mList){
 		AGGRESSION_MULTIPLIER = 1;
 	}
 
+
 	MENTRY *mEntry = mList->First;
 
 	for (int i = 0; i < mList->Length; i++){
@@ -154,33 +161,113 @@ MLIST *RankMoves(Game *game, MLIST *mList){
 		int distFromKingF = abs(move->f2 - fK);
 
 		int temp_points = (-(distFromKingR + distFromKingF) / KING_DISTANCE_MULTIPLIER) * AGGRESSION_MULTIPLIER;
+
 		
 		if (distFromKingR <= 1 && distFromKingF <= 1){
-			temp_points -= 100;
+			 temp_points -= 100;
 		}
+
+
+		
+		if (movePoints == 0 && move->r2 == 4 && move->f2 == 3){
+			temp_points += 10000;
+		}
+	
+		else if (movePoints == 1 && move->r2 == 4 && move->f2 == 4){
+			temp_points += 10000;
+		}
+
+		for (int i = 0; i < 8; i++){
+			for (int j = 0; j < 8; j++){
+				ChessPiece *piece = game->board[i][j];
+
+				if (piece == NULL){
+					break;
+				}
+
+				switch (piece->p_type){
+					case PAWN:
+						if (piece->color == who){
+							temp_points += 1;
+						}
+						else {
+							temp_points -= 1;
+						}
+						break;
+
+					case ROOK:
+						if (piece->color == who){
+							temp_points += 5;
+						}
+						else {
+							temp_points -= 5;
+						}
+						break;
+
+
+
+					case KNIGHT:
+						if (piece->color == who){
+							temp_points += 3;
+						}
+						else {
+							temp_points -= 3;
+						}
+						break;
+
+
+
+					case BISHOP:
+						if (piece->color == who){
+							temp_points += 3;
+						}
+						else {
+							temp_points -= 3;
+						}
+						break;
+
+
+
+					case QUEEN:
+						if (piece->color == who){
+							temp_points += 9;
+						}
+						else {
+							temp_points -= 9;
+						}
+						break;
+
+					default:
+						break;
+				}
+			}
+		}
+
+		
+
 
 		if (game->board[move->r2][move->f2] != NULL){
 			ChessPiece *piece = game->board[move->r2][move->f2];
 
 			switch (piece->p_type){
 				case PAWN:
-					temp_points += PIECE_POINTS_MULTIPLIER * 1;
+					temp_points += PIECE_POINTS_MULTIPLIER * 1 * AGGRESSION_MULTIPLIER;
 					break;
 
 				case ROOK:
-					temp_points += PIECE_POINTS_MULTIPLIER * 5;
+					temp_points += PIECE_POINTS_MULTIPLIER * 5 * AGGRESSION_MULTIPLIER;
 					break;
 
 				case KNIGHT:
-					temp_points += PIECE_POINTS_MULTIPLIER * 3;
+					temp_points += PIECE_POINTS_MULTIPLIER * 3 * AGGRESSION_MULTIPLIER;
 					break;
 
 				case BISHOP:
-					temp_points += PIECE_POINTS_MULTIPLIER * 3;
+					temp_points += PIECE_POINTS_MULTIPLIER * 3 * AGGRESSION_MULTIPLIER;
 					break;
 
 				case QUEEN:
-					temp_points += PIECE_POINTS_MULTIPLIER * 9;
+					temp_points += PIECE_POINTS_MULTIPLIER * 9 * AGGRESSION_MULTIPLIER;
 					break;
 
 				default:
@@ -190,18 +277,13 @@ MLIST *RankMoves(Game *game, MLIST *mList){
 
 
 
-		if (game->board[move->r1][move->f1] != NULL){
-			// ChessPiece *piece = game->board[move->r1][move->f1];
-
-		}
-
 		mEntry->points = temp_points;
 
 		// printf("Points: %d\n", mEntry->points);
 		mEntry = mEntry->Next;
 	}
 
-	mList = CullMoves(game, mList);
+	// mList = CullMoves(game, mList);
 
 	return mList;
 }
@@ -227,7 +309,7 @@ MLIST *CullMoves(Game *game, MLIST* mList){
 	mEntry = mList->First;
 
 	for (int i = 0; i < length; i++){
-		if (mEntry->points < average){
+		if (mEntry->points > (average - 4)){
 			AppendMoveEntry(mListClone, CloneMove(mEntry->Move));
 			mListClone->Last->points = mEntry->points;
 		}
@@ -240,11 +322,12 @@ MLIST *CullMoves(Game *game, MLIST* mList){
 }
 
 
-MLIST *RankMovesFuture(Game *game, MLIST *mList, int depth){
+MLIST *RankMovesFuture(Game *origin, Game *game, MLIST *mList, int depth){
 
 
 	MENTRY *entry = mList->First;
 
+	// printf("Finding best move for color %d on depth layer %d with color %d.\n", origin->whoTurn, depth, game->whoTurn);
 	for (int i = 0; i < mList->Length; i++){
 		// printf("%c%d to %c%d\n", 'a' + entry->Move->r1, 1 + entry->Move->f1, 'a' + entry->Move->r2, 1 + entry->Move->f2);
 
@@ -262,7 +345,13 @@ MLIST *RankMovesFuture(Game *game, MLIST *mList, int depth){
 
 		Move(clone, entry->Move);
 		checkPromotions(clone);
-		clone->whoTurn = (clone->whoTurn + 1) % 2;
+		if (clone->whoTurn == WHITE){
+			clone->whoTurn = BLACK;
+		}
+		else {
+			clone->whoTurn = WHITE;
+		}
+
 		if (isCheckmate(clone)){
 			DeleteGame(clone);
 			entry->points += 10000;
@@ -270,23 +359,68 @@ MLIST *RankMovesFuture(Game *game, MLIST *mList, int depth){
 
 			continue;
 		}
-		MLIST *futureMoves = RankMoves(clone, GetAllLegalMoves(clone));
+		if (isInCheck(clone)){
+			DeleteGame(clone);
+			entry->points += 10;
+			entry = entry->Next;
+			continue;
+		}
+		if (isStalemate(clone)){
+			DeleteGame(clone);
+			entry = entry->Next;
+			continue;
+		}
+
+		MLIST *futureMoves = GetAllLegalMoves(clone);
+		
+		// printf("%p\n", futureMoves);
+
+		futureMoves = RankMoves(clone, futureMoves);
+
+
+		if (depth > 1){
+			futureMoves = RankMovesFuture(origin, clone, futureMoves, depth - 1);
+		}
+		
+
 
 
 		MENTRY *entryFuture = futureMoves->First;
 
-		int total = 0;
+			
+		/*
+		if (origin->whoTurn == clone->whoTurn){
 
+			int highest = entryFuture->points;
+
+			for (int j = 0; j < futureMoves->Length; j++){
+				if (entryFuture->points > highest){
+					highest = entryFuture->points;
+				}
+				entryFuture = entryFuture->Next;
+			}
+			entry->points = highest;
+		}
+		else {
+			int lowest = entryFuture->points;
+
+			for (int j = 0; j < futureMoves->Length; j++){
+				if (entryFuture->points < lowest){
+					lowest = entryFuture->points;
+				}
+				entryFuture = entryFuture->Next;
+			}
+			entry->points = lowest;
+		}
+		*/
+
+		int total = 0;		
 		for (int j = 0; j < futureMoves->Length; j++){
 			total += entryFuture->points;
 			entryFuture = entryFuture->Next;
 		}
-
-		entry->points -= 20 * (total / (futureMoves->Length == 0 ? 1 : futureMoves->Length));
-
-		if (depth > 0){
-			futureMoves = RankMovesFuture(clone, futureMoves, depth - 1);
-		}
+		
+		entry->points = -1 * (total / futureMoves->Length);
 
 		entry = entry->Next;
 
@@ -309,7 +443,7 @@ MOVE *GetBestMove(Game *game, MLIST *mList){
 	MENTRY *mEntry = mList->First;
 
 	for (int i = 0; i < mList->Length; i++){
-		if (mEntry->points > bestMove->points){
+		if (mEntry->points >= bestMove->points){
 			bestMove = mEntry;
 		}
 

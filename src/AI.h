@@ -12,7 +12,7 @@ MLIST *RankMoves(Game *game, MLIST *mList);
 
 MLIST *CullMoves(Game *game, MLIST *mList);
 
-MLIST *RankMovesFuture(Game *game, MLIST *mList, int depth);
+MLIST *RankMovesFuture(Game *origin, Game *game, MLIST *mList, int depth);
 
 MOVE *GetBestMove(Game *game, MLIST *mList);
 
